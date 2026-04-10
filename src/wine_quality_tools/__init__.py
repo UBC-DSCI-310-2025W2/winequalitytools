@@ -22,8 +22,16 @@
 # SOFTWARE.
 
 """
-Add a docstring here for the init module.
-
-This might include a very brief description of the package,
-its purpose, and any important notes.
+Import the functions from functions.py file to make them accessible
 """
+
+from .functions import (
+    clean_data, 
+    download_data, 
+    generate_boxplot_comparison, 
+    generate_correlation_heatmap, 
+    generate_histograms, 
+    build_preprocessor, 
+    save_figure, 
+    stratified_split
+)
