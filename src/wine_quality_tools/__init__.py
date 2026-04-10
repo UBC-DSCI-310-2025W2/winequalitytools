@@ -26,12 +26,14 @@ Import the functions from functions.py file to make them accessible
 """
 
 from .functions import (
-    clean_data, 
-    download_data, 
-    generate_boxplot_comparison, 
-    generate_correlation_heatmap, 
-    generate_histograms, 
-    build_preprocessor, 
-    save_figure, 
-    stratified_split
+    download_data,
+    clean_data,
+    load_data,
+    stratified_split,
+    save_data,
+    build_preprocessor,
+    generate_boxplot_comparison,
+    generate_correlation_heatmap,
+    generate_histograms,
+    save_figure
 )

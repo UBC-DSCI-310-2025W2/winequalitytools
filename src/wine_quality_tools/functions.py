@@ -4,7 +4,6 @@ This module provides utilities for data acquisition, cleaning,
 preprocessing, and visualization of wine quality data.
 """
 
-import click
 import os
 import pandas as pd
 from pandas.errors import EmptyDataError
