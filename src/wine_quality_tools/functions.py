@@ -15,6 +15,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import make_column_transformer
 import pandas.api.types as pd_types
 
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for testing
 import matplotlib.pyplot as plt
 import seaborn as sns
 
