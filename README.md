@@ -2,6 +2,7 @@
 
 |        |        |
 |--------|--------|
+| Run Tests | [![Run Tests](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml) |
 | Package | [![Latest PyPI Version](https://img.shields.io/pypi/v/wine-quality-tools.svg)](https://pypi.org/project/wine-quality-tools/) [![Supported Python Versions](https://img.shields.io/pypi/pyversions/wine-quality-tools.svg)](https://pypi.org/project/wine-quality-tools/)  |
 | Meta   | [![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md) |
 
