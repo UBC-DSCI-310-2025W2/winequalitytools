@@ -1,8 +1,6 @@
 # Welcome to Wine Quality Tools
 
-|        |        |
-|--------|--------|
-| Run Tests | [![Run Tests](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml) |
+ [![Run Tests](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml) 
 
 **DSCI 310 Group 13 Authors:** Sungha Choi, Karen Siem, Alexis Widjaja, Siluni Jayarathne
 
