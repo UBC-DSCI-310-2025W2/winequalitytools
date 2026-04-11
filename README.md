@@ -2,29 +2,37 @@
 
 |        |        |
 |--------|--------|
-| Package | [![Latest PyPI Version](https://img.shields.io/pypi/v/wine-quality-tools.svg)](https://pypi.org/project/wine-quality-tools/) [![Supported Python Versions](https://img.shields.io/pypi/pyversions/wine-quality-tools.svg)](https://pypi.org/project/wine-quality-tools/)  |
-| Meta   | [![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md) |
+| Run Tests | [![Run Tests](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/UBC-DSCI-310-2025W2/winequalitytools/actions/workflows/test.yml) |
 
-*TODO: the above badges that indicate python version and package version will only work if your package is on PyPI.
-If you don't plan to publish to PyPI, you can remove them.*
 
-Wine Quality Tools is a project that (describe what it does here).
+Python package designed to streamline the analysis of UCI Wine Quality datasets. It provides automated tools for data acquisition, stratified splitting, standardized preprocessing, and common exploratory visualizations (histograms, boxplots, and correlation heatmaps).
+
+
+While general libraries like `pandas` and `seaborn` provide the foundation for data manipulation and plotting, `wine_quality_tools` specializes these tools specifically for the UCI Wine Quality dataset, reducing boilerplate code for cleaning and standardized preprocessing.
 
 ## Get started
 
-You can install this package into your preferred Python environment using pip:
+Install the package directly from GitHub:
 
 ```bash
-$ pip install wine-quality-tools
+$ pip install git+https://github.com/UBC-DSCI-310-2025W2/winequalitytools.git
 ```
-
-TODO: Add a brief example of how to use the package to this section
 
 To use wine-quality-tools in your code:
 
 ```python
->>> import wine-quality-tools
->>> wine-quality-tools.hello_world()
+import wine_quality_tools as wqt
+
+# Load and clean the data (ensure raw files are in your data folder)
+df = wqt.clean_data(
+    red_input="data/winequality-red.csv", 
+    white_input="data/winequality-white.csv", 
+    output_file="data/cleaned_wine.csv"
+)
+
+# Generate and save a correlation heatmap
+fig = wqt.generate_correlation_heatmap(df)
+wqt.save_figure(fig, "results/heatmap.png")v
 ```
 
 ## Copyright
