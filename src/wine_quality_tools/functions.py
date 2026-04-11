@@ -359,39 +359,57 @@ def generate_histograms(data, columns, is_categorical=False, title=None):
     data : pandas.DataFrame
         The dataframe containing the data to visualize.
     columns : str or list of str
-        The column(s) to plot. If is_categorical is True, only the first column is used.
+        The column name(s) to plot. If `is_categorical` is True, a single 
+        string or the first element of a list is used.
     is_categorical : bool, optional
-        If True, generates a Seaborn countplot. If False, generates Matplotlib 
-        histograms for numeric data. Defaults to False.
+        If True, generates a Seaborn countplot (best for strings/grades). 
+        If False, generates Seaborn histplots (best for numeric features). 
+        Defaults to False.
     title : str, optional
         The main title for the figure. Defaults to "Distribution Plot".
 
     Returns
     -------
     matplotlib.figure.Figure
-        The figure object containing the distribution plots.
+        The figure object containing the generated plots.
 
     Raises
     ------
     ValueError
-        If the provided dataframe is empty.
+        If the provided DataFrame is empty or if 'columns' is not 
+        contained within the DataFrame.
+    TypeError
+        If 'data' is not a pandas DataFrame.
     """
+   
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Input 'data' must be a pandas DataFrame.")
     if data.empty:
         raise ValueError("The provided DataFrame is empty.")
     
-    fig = plt.figure(figsize=(12, 8))
+    # Ensure columns is a list for consistency
+    cols_to_plot = [columns] if isinstance(columns, str) else columns
+    
+    missing_cols = [c for c in cols_to_plot if c not in data.columns]
+    if missing_cols:
+        raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
+
+    num_cols = 1 if is_categorical else len(cols_to_plot)
+    fig, axes = plt.subplots(1, num_cols, figsize=(5 * num_cols, 5), squeeze=False)
     sns.set_theme(style="whitegrid")
 
     if is_categorical:
-        # If columns is a list, take the first one for countplot
-        col = columns[0] if isinstance(columns, list) else columns
-        sns.countplot(data=data, x=col, palette='viridis', hue=col, legend=False)
+        col = cols_to_plot[0]
+        sns.countplot(data=data, x=col, palette='viridis', ax=axes[0, 0])
+        axes[0, 0].set_title(f"Count of {col}")
     else:
-        data[columns].hist(bins=20, figsize=(15, 10), color='steelblue', edgecolor='black')
-        fig = plt.gcf()
-        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        for i, col in enumerate(cols_to_plot):
+            sns.histplot(data=data, x=col, bins=20, color='steelblue', ax=axes[0, i])
+            axes[0, i].set_title(f"Distribution of {col}")
 
     plt.suptitle(title or "Distribution Plot", fontsize=16)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    
     return fig
 
 
