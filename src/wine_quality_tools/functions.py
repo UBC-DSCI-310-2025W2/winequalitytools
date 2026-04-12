@@ -102,26 +102,10 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def _load_csv(filepath):
-    """
-    Load a CSV file and handle errors.
-    Examples
-    --------
-    >>> df = _load_csv("data/wine.csv")
-    >>> isinstance(df, pd.DataFrame)
-    True
-    """
-    try:
-        return pd.read_csv(filepath)
-    except EmptyDataError:
-        return pd.DataFrame()
-    except Exception as e:
-        raise ValueError(f"Error reading file: {e}")
-
 def _clean_column_names(df):
     """
     Standardize column names.
-    Examples
+    Examples 
     --------
     >>> df = pd.DataFrame({"Fixed Acidity": [7.4]})
     >>> df = _clean_column_names(df)
@@ -155,24 +139,26 @@ def _merge_datasets(red_df, white_df):
     2
     """
     return pd.concat([red_df, white_df], ignore_index=True)
-
+      
 def load_data(filepath):
     """
-    Load dataset from a CSV file.
-
+    Load a CSV file and handle errors.
+    
     Parameters
     ----------
     filepath : str
-
-    Returns
-    -------
-    pandas.DataFrame
     
     Examples
     --------
     >>> df = load_data("data/wine.csv")
+  
     """
-    return pd.read_csv(filepath)
+    try:
+        return pd.read_csv(filepath)
+    except EmptyDataError:
+        return pd.DataFrame()
+    except Exception as e:
+        raise ValueError(f"Error reading file: {e}")
 
 def save_data(df, filepath):
     """
@@ -187,7 +173,10 @@ def save_data(df, filepath):
     --------
     >>> save_data(df, "output/cleaned.csv")
     """
-    df.to_csv(filepath, index=False)
+    try:
+      df.to_csv(filepath, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
 
 
 def clean_data(red_input, white_input, output_file):
@@ -229,8 +218,8 @@ def clean_data(red_input, white_input, output_file):
     output_file = _validate_and_convert_to_string(output_file, "output_file")
 
     # ---- Load data ----
-    red = _load_csv(red_input)
-    white = _load_csv(white_input)
+    red = load_data(red_input)
+    white = load_data(white_input)
 
     # ---- Clean column names ----
     red = _clean_column_names(red)
@@ -244,10 +233,7 @@ def clean_data(red_input, white_input, output_file):
     combined = _merge_datasets(red, white)
 
     # ---- Save output ----
-    try:
-        combined.to_csv(output_file, index=False)
-    except Exception as e:
-        raise ValueError(f"Error saving file: {e}")
+    save_data(combined, output_file)
 
     return combined
 
@@ -426,6 +412,7 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     Examples
     --------
     >>> fig = generate_correlation_heatmap(df)
+    >>> fig.savefig("heatmap.png")
     """
     numeric_df = data.select_dtypes(include=['number'])
     if numeric_df.empty:
