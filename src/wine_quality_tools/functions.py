@@ -83,7 +83,7 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def _load_csv(filepath):
+def load_csv(filepath):
     """
     Load a CSV file and handle errors.
     """
@@ -94,21 +94,21 @@ def _load_csv(filepath):
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
       
-def _clean_column_names(df):
+def clean_column_names(df):
     """
     Standardize column names.
     """
     df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
     return df
   
-def _add_wine_type(df, wine_type):
+def add_wine_type(df, wine_type):
     """
     Add wine_type column to dataframe.
     """
     df["wine_type"] = wine_type
     return df
   
-def _merge_datasets(red_df, white_df):
+def merge_datasets(red_df, white_df):
     """
     Merge red and white wine datasets.
     """
@@ -140,22 +140,30 @@ def clean_data(red_input, white_input, output_file):
         If inputs are invalid or files cannot be read
     """
 
-    # ---- Convert Path to string and Validate inputs ----
-    red_input = _validate_and_convert_to_string(red_input, "red_input")
-    white_input = _validate_and_convert_to_string(white_input, "white_input")
-    output_file = _validate_and_convert_to_string(output_file, "output_file")
+    # ---- Convert Path to string ----
+    if isinstance(red_input, Path):
+        red_input = str(red_input)
+    if isinstance(white_input, Path):
+        white_input = str(white_input)
+    if isinstance(output_file, Path):
+        output_file = str(output_file)
+
+    # ---- Validate inputs ----
+    for name, path in [("red_input", red_input), ("white_input", white_input), ("output_file", output_file)]:
+        if not isinstance(path, str) or path.strip() == "":
+            raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
-    red = _load_csv(red_input)
-    white = _load_csv(white_input)
+    red = load_csv(red_input)
+    white = load_csv(white_input)
 
     # ---- Clean column names ----
-    red = _clean_column_names(red)
-    white = _clean_column_names(white)
+    red = clean_column_names(red)
+    white = clean_column_names(white)
 
     # ---- Add wine type ----
-    red = _add_wine_type(red, "red")
-    white = _add_wine_type(white, "white")
+    red = add_wine_type(red, "red")
+    white = add_wine_type(white, "white")
 
     # ---- Merge datasets ----
     combined = _merge_datasets(red, white)
@@ -170,52 +178,22 @@ def clean_data(red_input, white_input, output_file):
 
 
 def stratified_split(df, target_col, test_size=0.3, random_state=42):
-  """
-    Perform a stratified train-test split on a dataset.
-
-    This function splits a DataFrame into training and testing sets while 
-    preserving the distribution of the target variable.
+    """
+    Perform stratified train-test split.
 
     Parameters
     ----------
     df : pandas.DataFrame
-        The dataset to split.
     target_col : str
-        The name of the column to stratify on.
-    test_size : float, optional
-        Proportion of the dataset to include in the test split (default is 0.3).
-    random_state : int, optional
-        Random seed for reproducibility (default is 42).
+    test_size : float
+    random_state : int
 
     Returns
     -------
-    tuple of pandas.DataFrame
-        (train_df, test_df)
-
-    Raises
-    ------
-    TypeError
-        If `df` is not a pandas DataFrame or `target_col` is not a string.
-    KeyError
-        If `target_col` is not found in the DataFrame.
-    ValueError
-        If `test_size` is not between 0 and 1.
-
-    Examples
-    --------
-    >>> train, test = stratified_split(df, "quality", test_size=0.2)
+    (train_df, test_df)
     """
-    if not isinstance(df, pd.DataFrame):
-      raise TypeError("df must be a pandas DataFrame.")
-
-    if not isinstance(target_col, str):
-      raise TypeError("target_col must be a string.")
-
     if target_col not in df.columns:
-      raise KeyError(f"{target_col} not found in dataframe")
-
-    if not isinstance(test_size, float) or not (0 < test_size < 1):
-      raise ValueError("test_size must be a float between 0 and 1.")
+        raise KeyError(f"{target_col} not found in dataframe")
 
     train, test = train_test_split(
         df,
@@ -226,38 +204,6 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
 
     return train, test
 
-def load_data(filepath):
-    """
-    Load dataset from a CSV file.
-
-    Parameters
-    ----------
-    filepath : str or Path
-
-    Returns
-    -------
-    pandas.DataFrame
-        
-    Examples
-    --------
-    >>> df = load_data("data/wine.csv")
-    """
-    return pd.read_csv(filepath)
-
-def save_data(df, filepath):
-    """
-    Save DataFrame to CSV.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-    filepath : str or Path
-        
-    Examples
-    --------
-    >>> save_data(df, "output/cleaned.csv")
-    """
-    df.to_csv(filepath, index=False)
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
