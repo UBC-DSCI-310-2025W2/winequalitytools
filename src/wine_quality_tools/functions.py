@@ -83,7 +83,7 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def load_csv(filepath):
+def _load_csv(filepath):
     """
     Load a CSV file and handle errors.
     """
@@ -94,21 +94,21 @@ def load_csv(filepath):
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
       
-def clean_column_names(df):
+def _clean_column_names(df):
     """
     Standardize column names.
     """
     df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
     return df
   
-def add_wine_type(df, wine_type):
+def _add_wine_type(df, wine_type):
     """
     Add wine_type column to dataframe.
     """
     df["wine_type"] = wine_type
     return df
   
-def merge_datasets(red_df, white_df):
+def _merge_datasets(red_df, white_df):
     """
     Merge red and white wine datasets.
     """
@@ -154,16 +154,16 @@ def clean_data(red_input, white_input, output_file):
             raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
-    red = load_csv(red_input)
-    white = load_csv(white_input)
+    red = _load_csv(red_input)
+    white = _load_csv(white_input)
 
     # ---- Clean column names ----
-    red = clean_column_names(red)
-    white = clean_column_names(white)
+    red = _clean_column_names(red)
+    white = _clean_column_names(white)
 
     # ---- Add wine type ----
-    red = add_wine_type(red, "red")
-    white = add_wine_type(white, "white")
+    red = _add_wine_type(red, "red")
+    white = _add_wine_type(white, "white")
 
     # ---- Merge datasets ----
     combined = _merge_datasets(red, white)
@@ -204,6 +204,30 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
 
     return train, test
 
+def load_data(filepath):
+    """
+    Load dataset from a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    return pd.read_csv(filepath)
+
+def save_data(df, filepath):
+    """
+    Save DataFrame to CSV.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    filepath : str
+    """
+    df.to_csv(filepath, index=False)
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
