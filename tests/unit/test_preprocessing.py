@@ -70,19 +70,47 @@ def test_numeric_only_expected_values():
 
     assert np.allclose(X_trans, expected)
 
-def test_categorical_only():
-    """Tests categorical one-hot encoding with multiple categorical columns."""
-    preprocessor = build_preprocessor(categorical_df, ['city', 'gender'], [])
-    X_trans = preprocessor.fit_transform(categorical_df)
-    assert X_trans.shape[0] == 4
-    assert not np.isnan(X_trans).any()
+def test_categorical_only_expected_encoding():
+    """Tests categorical encoding against expected output structure."""
+    df = pd.DataFrame({
+        'city': ['Van', 'Vic', 'Van'],
+        'gender': ['F', 'M', 'F']
+    })
+
+    preprocessor = build_preprocessor(df, ['city', 'gender'], [])
+    X_trans = preprocessor.fit_transform(df)
+
+    expected = np.array([
+        [1., 0., 0.],
+        [0., 1., 1.],
+        [1., 0., 0.]
+    ])
+
+    assert X_trans.shape == expected.shape
+    assert np.allclose(X_trans, expected)
 
 def test_mixed_columns():
-    """Tests using both numeric and categorical columns together."""
-    preprocessor = build_preprocessor(mixed_df, ['city'], ['age', 'income'])
-    X_trans = preprocessor.fit_transform(mixed_df)
-    assert X_trans.shape[0] == 4
-    assert not np.isnan(X_trans).any()
+    """Tests numeric scaling + categorical encoding with known expected output."""
+
+    df = pd.DataFrame({
+        'age': [10, 20, 30],
+        'city': ['A', 'B', 'A']
+    })
+
+    preprocessor = build_preprocessor(df, ['city'], ['age'])
+    X_trans = preprocessor.fit_transform(df)
+
+    # Expected:
+    # age standardized → [-1.2247, 0, 1.2247]
+    # city (binary, drop='if_binary') → A=0, B=1
+    expected = np.array([
+        [-1.22474487, 0.],
+        [ 0.        , 1.],
+        [ 1.22474487, 0.]
+    ])
+
+    assert X_trans.shape == expected.shape
+    assert np.allclose(X_trans, expected)
 
 def test_empty_column_lists():
     """Edge case: both column lists empty."""
