@@ -23,6 +23,11 @@ import seaborn as sns
 def _fetch_csv(url, sep=";"):
     """
     Fetch a CSV file from a URL and return a DataFrame.
+    
+    Examples
+    --------
+    >>> df = _fetch_csv("https://example.com/data.csv")
+    >>> df.shape
     """
     try:
         return pd.read_csv(url, sep=sep)
@@ -32,6 +37,12 @@ def _fetch_csv(url, sep=";"):
 def _validate_and_convert_to_string(value, name):
     """
     Validate that a value is a non-empty string or Path, and return it as a string.
+    Examples
+    --------
+    >>> _validate_and_convert_to_string("data/file.csv", "filepath")
+    'data/file.csv'
+    >>> _validate_and_convert_to_string(Path("data/file.csv"), "filepath")
+    'data/file.csv'
     """
     if isinstance(value, Path):
         value = str(value)
@@ -40,7 +51,7 @@ def _validate_and_convert_to_string(value, name):
         raise ValueError(f"{name} must be a non-empty string.")
 
     return value
-  
+
 def download_data(red_url, white_url, output_dir, sep=";"):
     """
     Download wine datasets from URLs and save them locally.
@@ -65,6 +76,14 @@ def download_data(red_url, white_url, output_dir, sep=";"):
     ------
     ValueError
         If inputs are invalid or download fails
+        
+    Examples
+    --------
+    >>> red, white, red_path, white_path = download_data(
+    "https://example.com/red.csv",
+    "https://example.com/white.csv",
+    "data/"
+    sep=";")
     """
     red_url = _validate_and_convert_to_string(red_url, "red_url")
     white_url = _validate_and_convert_to_string(white_url, "white_url")
@@ -83,60 +102,77 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def load_data(filepath):
-  """
-    Load a dataset from a CSV file.
-
-    This function reads a CSV file from the given filepath and returns it
-    as a pandas DataFrame. It performs input validation to ensure the
-    filepath is valid and exists before attempting to load the file.
-
-    Parameters
-    ----------
-    filepath : str or Path
-        Path to the CSV file to be loaded.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The loaded dataset.
-
-    Raises
-    ------
-    ValueError
-        If an error occurs while reading the file.
-
+def _load_csv(filepath):
+    """
+    Load a CSV file and handle errors.
     Examples
     --------
-    >>> df = load_data("data/wine.csv")
+    >>> df = _load_csv("data/wine.csv")
+    >>> isinstance(df, pd.DataFrame)
+    True
     """
-   try:
+    try:
         return pd.read_csv(filepath)
     except EmptyDataError:
         return pd.DataFrame()
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
-      
+
 def _clean_column_names(df):
     """
     Standardize column names.
+    Examples
+    --------
+    >>> df = pd.DataFrame({"Fixed Acidity": [7.4]})
+    >>> df = _clean_column_names(df)
+    >>> df.columns
     """
     df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
     return df
-  
+
 def _add_wine_type(df, wine_type):
     """
-    Add wine_type column to dataframe
+    Add wine_type column to dataframe.
+    Examples
+    --------
+    >>> df = pd.DataFrame({"alcohol": [10.5]})
+    >>> df = _add_wine_type(df, "red")
+    >>> df["wine_type"].iloc[0]
+    'red'
     """
     df["wine_type"] = wine_type
     return df
-  
+
 def _merge_datasets(red_df, white_df):
     """
     Merge red and white wine datasets.
+    Examples
+    --------
+    >>> df1 = pd.DataFrame({"a": [1]})
+    >>> df2 = pd.DataFrame({"a": [2]})
+    >>> merged = _merge_datasets(df1, df2)
+    >>> len(merged)
+    2
     """
     return pd.concat([red_df, white_df], ignore_index=True)
-  
+
+def load_data(filepath):
+    """
+    Load dataset from a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
+    """
+    return pd.read_csv(filepath)
 
 def save_data(df, filepath):
     """
@@ -152,6 +188,7 @@ def save_data(df, filepath):
     >>> save_data(df, "output/cleaned.csv")
     """
     df.to_csv(filepath, index=False)
+
 
 def clean_data(red_input, white_input, output_file):
 
@@ -176,16 +213,24 @@ def clean_data(red_input, white_input, output_file):
     ------
     ValueError
         If inputs are invalid or files cannot be read
+        
+    Examples
+    --------
+    >>> df = clean_data(
+    "data/winequality-red.csv",
+    "data/winequality-white.csv",
+    "output/cleaned.csv")
+    >>> df.head()
     """
-    
+
     # ---- Convert Path to string ----
     red_input = _validate_and_convert_to_string(red_input, "red_input")
     white_input = _validate_and_convert_to_string(white_input, "white_input")
     output_file = _validate_and_convert_to_string(output_file, "output_file")
 
     # ---- Load data ----
-    red = load_data(red_input)
-    white = load_data(white_input)
+    red = _load_csv(red_input)
+    white = _load_csv(white_input)
 
     # ---- Clean column names ----
     red = _clean_column_names(red)
@@ -221,6 +266,12 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
     Returns
     -------
     (train_df, test_df)
+    
+    Examples
+    --------
+    >>> train, test = stratified_split(df, "quality", test_size=0.2)
+    >>> len(train) + len(test) == len(df)
+    True
     """
     if target_col not in df.columns:
         raise KeyError(f"{target_col} not found in dataframe")
@@ -274,7 +325,7 @@ def build_preprocessor(df, categorical_cols, numeric_cols):
     >>> preprocessor = build_preprocessor(df, ['city'], ['age'])
     >>> X_transformed = preprocessor.fit_transform(df)
     """
-    
+
     if not numeric_cols and not categorical_cols:
         raise ValueError("At least one non-empty column must be provided.")
 
@@ -328,6 +379,11 @@ def generate_boxplot_comparison(data, x, y_cols, title=None):
     ------
     KeyError
         If any of the specified columns are not present in the dataframe.
+        
+    Examples
+    --------
+    >>> fig = generate_boxplot_comparison(df, "quality", ["alcohol", "pH"])
+    >>> fig.savefig("boxplot.png")
     """
     for col in [x] + y_cols:
         if col not in data.columns:
@@ -367,104 +423,11 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     ------
     ValueError
         If the dataframe contains no numeric columns (float64 or int64).
+    Examples
+    --------
+    >>> fig = generate_correlation_heatmap(df)
     """
+    numeric_df = data.select_dtypes(include=['float64', 'int64'])
     numeric_df = data.select_dtypes(include=['number'])
     if numeric_df.empty:
         raise ValueError("No numeric columns available to correlate.")
-
-    fig = plt.figure(figsize=(12, 10))
-    sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-    plt.title(title)
-    return fig
-  
-
-def generate_histograms(data, columns, is_categorical=False, title=None):
-    """
-    Creates distribution plots (histograms or countplots) for specified columns.
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
-        The dataframe containing the data to visualize.
-    columns : str or list of str
-        The column name(s) to plot. If `is_categorical` is True, a single 
-        string or the first element of a list is used.
-    is_categorical : bool, optional
-        If True, generates a Seaborn countplot (best for strings/grades). 
-        If False, generates Seaborn histplots (best for numeric features). 
-        Defaults to False.
-    title : str, optional
-        The main title for the figure. Defaults to "Distribution Plot".
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        The figure object containing the generated plots.
-
-    Raises
-    ------
-    ValueError
-        If the provided DataFrame is empty or if 'columns' is not 
-        contained within the DataFrame.
-    TypeError
-        If 'data' is not a pandas DataFrame.
-    """
-   
-    if not isinstance(data, pd.DataFrame):
-        raise TypeError("Input 'data' must be a pandas DataFrame.")
-    if data.empty:
-        raise ValueError("The provided DataFrame is empty.")
-    
-    # Ensure columns is a list for consistency
-    cols_to_plot = [columns] if isinstance(columns, str) else columns
-    
-    missing_cols = [c for c in cols_to_plot if c not in data.columns]
-    if missing_cols:
-        raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
-
-    num_cols = 1 if is_categorical else len(cols_to_plot)
-    fig, axes = plt.subplots(1, num_cols, figsize=(5 * num_cols, 5), squeeze=False)
-    sns.set_theme(style="whitegrid")
-
-    if is_categorical:
-        col = cols_to_plot[0]
-        sns.countplot(data=data, x=col, palette='viridis', ax=axes[0, 0])
-        axes[0, 0].set_title(f"Count of {col}")
-    else:
-        for i, col in enumerate(cols_to_plot):
-            sns.histplot(data=data, x=col, bins=20, color='steelblue', ax=axes[0, i])
-            axes[0, i].set_title(f"Distribution of {col}")
-
-    plt.suptitle(title or "Distribution Plot", fontsize=16)
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    
-    return fig
-
-
-def save_figure(fig, output_path):
-    """
-    Saves a Matplotlib figure object to a file, handling directory creation.
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        The figure object to save.
-    output_path : str
-        The full file path (including filename and extension) where the image 
-        should be saved (e.g., 'results/figures/plot.png').
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    ValueError
-        If the figure object provided is None.
-    """
-    if fig is None:
-        raise ValueError("Figure object is None.")
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.savefig(output_path)
-    plt.close(fig)
