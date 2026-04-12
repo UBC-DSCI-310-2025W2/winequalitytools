@@ -178,22 +178,52 @@ def clean_data(red_input, white_input, output_file):
 
 
 def stratified_split(df, target_col, test_size=0.3, random_state=42):
-    """
-    Perform stratified train-test split.
+  """
+    Perform a stratified train-test split on a dataset.
+
+    This function splits a DataFrame into training and testing sets while 
+    preserving the distribution of the target variable.
 
     Parameters
     ----------
     df : pandas.DataFrame
+        The dataset to split.
     target_col : str
-    test_size : float
-    random_state : int
+        The name of the column to stratify on.
+    test_size : float, optional
+        Proportion of the dataset to include in the test split (default is 0.3).
+    random_state : int, optional
+        Random seed for reproducibility (default is 42).
 
     Returns
     -------
-    (train_df, test_df)
+    tuple of pandas.DataFrame
+        (train_df, test_df)
+
+    Raises
+    ------
+    TypeError
+        If `df` is not a pandas DataFrame or `target_col` is not a string.
+    KeyError
+        If `target_col` is not found in the DataFrame.
+    ValueError
+        If `test_size` is not between 0 and 1.
+
+    Examples
+    --------
+    >>> train, test = stratified_split(df, "quality", test_size=0.2)
     """
+    if not isinstance(df, pd.DataFrame):
+      raise TypeError("df must be a pandas DataFrame.")
+
+    if not isinstance(target_col, str):
+      raise TypeError("target_col must be a string.")
+
     if target_col not in df.columns:
-        raise KeyError(f"{target_col} not found in dataframe")
+      raise KeyError(f"{target_col} not found in dataframe")
+
+    if not isinstance(test_size, float) or not (0 < test_size < 1):
+      raise ValueError("test_size must be a float between 0 and 1.")
 
     train, test = train_test_split(
         df,
@@ -210,13 +240,36 @@ def load_data(filepath):
 
     Parameters
     ----------
-    filepath : str
+    filepath : str or Path
 
     Returns
     -------
     pandas.DataFrame
+
+    Raises
+    ------
+    ValueError
+        If filepath is not a non-empty string or Path
+    FileNotFoundError
+        If the file does not exist
+        
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
     """
-    return pd.read_csv(filepath)
+    if isinstance(filepath, Path):
+        filepath = str(filepath)
+
+    if not isinstance(filepath, str) or filepath.strip() == "":
+        raise ValueError("filepath must be a non-empty string.")
+
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+
+    try:
+        return pd.read_csv(filepath)
+    except Exception as e:
+        raise ValueError(f"Error reading file: {e}")
 
 def save_data(df, filepath):
     """
@@ -225,9 +278,32 @@ def save_data(df, filepath):
     Parameters
     ----------
     df : pandas.DataFrame
-    filepath : str
+    filepath : str or Path
+
+    Raises
+    ------
+    TypeError
+        If df is not a DataFrame
+    ValueError
+        If filepath is invalid
+        
+    Examples
+    --------
+    >>> save_data(df, "output/cleaned.csv")
     """
-    df.to_csv(filepath, index=False)
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a pandas DataFrame.")
+
+    if isinstance(filepath, Path):
+        filepath = str(filepath)
+
+    if not isinstance(filepath, str) or filepath.strip() == "":
+        raise ValueError("filepath must be a non-empty string.")
+
+    try:
+        df.to_csv(filepath, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
