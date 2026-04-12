@@ -113,6 +113,39 @@ def _merge_datasets(red_df, white_df):
     Merge red and white wine datasets.
     """
     return pd.concat([red_df, white_df], ignore_index=True)
+  
+def load_data(filepath):
+    """
+    Load dataset from a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
+    """
+    return pd.read_csv(filepath)
+
+def save_data(df, filepath):
+    """
+    Save DataFrame to CSV.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    filepath : str
+    
+    Examples
+    --------
+    >>> save_data(df, "output/cleaned.csv")
+    """
+    df.to_csv(filepath, index=False)
 
 
 def clean_data(red_input, white_input, output_file):
@@ -141,17 +174,9 @@ def clean_data(red_input, white_input, output_file):
     """
 
     # ---- Convert Path to string ----
-    if isinstance(red_input, Path):
-        red_input = str(red_input)
-    if isinstance(white_input, Path):
-        white_input = str(white_input)
-    if isinstance(output_file, Path):
-        output_file = str(output_file)
-
-    # ---- Validate inputs ----
-    for name, path in [("red_input", red_input), ("white_input", white_input), ("output_file", output_file)]:
-        if not isinstance(path, str) or path.strip() == "":
-            raise ValueError(f"{name} must be a non-empty string.")
+    red_url = _validate_and_convert_to_string(red_url, "red_url")
+    white_url = _validate_and_convert_to_string(white_url, "white_url")
+    output_dir = _validate_and_convert_to_string(output_dir, "output_dir")
 
     # ---- Load data ----
     red = _load_csv(red_input)
@@ -203,31 +228,6 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
     )
 
     return train, test
-
-def load_data(filepath):
-    """
-    Load dataset from a CSV file.
-
-    Parameters
-    ----------
-    filepath : str
-
-    Returns
-    -------
-    pandas.DataFrame
-    """
-    return pd.read_csv(filepath)
-
-def save_data(df, filepath):
-    """
-    Save DataFrame to CSV.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-    filepath : str
-    """
-    df.to_csv(filepath, index=False)
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
