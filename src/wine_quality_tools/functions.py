@@ -427,7 +427,6 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     --------
     >>> fig = generate_correlation_heatmap(df)
     """
-    numeric_df = data.select_dtypes(include=['float64', 'int64'])
     numeric_df = data.select_dtypes(include=['number'])
     if numeric_df.empty:
         raise ValueError("No numeric columns available to correlate.")
