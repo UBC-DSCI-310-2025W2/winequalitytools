@@ -77,5 +77,5 @@ def test_clean_data_empty_inputs(tmp_path):
 def test_clean_data_invalid_path():
     """Error case: invalid file paths."""
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         clean_data("bad_red.csv", "bad_white.csv", "out.csv")

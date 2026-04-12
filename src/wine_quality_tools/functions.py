@@ -140,18 +140,9 @@ def _merge_datasets(red_df, white_df):
     """
     return pd.concat([red_df, white_df], ignore_index=True)
       
-def load_data(filepath):
+def _load_csv(filepath):
     """
     Load a CSV file and handle errors.
-    
-    Parameters
-    ----------
-    filepath : str
-    
-    Examples
-    --------
-    >>> df = load_data("data/wine.csv")
-  
     """
     try:
         return pd.read_csv(filepath)
@@ -159,6 +150,7 @@ def load_data(filepath):
         return pd.DataFrame()
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
+
 
 def save_data(df, filepath):
     """
@@ -218,8 +210,8 @@ def clean_data(red_input, white_input, output_file):
     output_file = _validate_and_convert_to_string(output_file, "output_file")
 
     # ---- Load data ----
-    red = load_data(red_input)
-    white = load_data(white_input)
+    red = _load_csv(red_input)
+    white = _load_csv(white_input)
 
     # ---- Clean column names ----
     red = _clean_column_names(red)
@@ -233,10 +225,12 @@ def clean_data(red_input, white_input, output_file):
     combined = _merge_datasets(red, white)
 
     # ---- Save output ----
-    save_data(combined, output_file)
+    try:
+        combined.to_csv(output_file, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
 
     return combined
-
 
 def stratified_split(df, target_col, test_size=0.3, random_state=42):
     """
@@ -271,6 +265,39 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
 
     return train, test
 
+
+def load_data(filepath):
+    """
+    Load dataset from a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
+    """
+    return pd.read_csv(filepath)
+  
+def save_data(df, filepath):
+    """
+    Save DataFrame to CSV.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    filepath : str
+    
+    Examples
+    --------
+    >>> save_data(df, "output/cleaned.csv")
+    """
+    df.to_csv(filepath, index=False)
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
     """
