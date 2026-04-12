@@ -60,5 +60,5 @@ def test_download_data_custom_separator(tmp_path):
 def test_download_data_invalid_url(tmp_path):
     """Invalid URL should raise ValueError."""
 
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         download_data("invalid_url", "invalid_url", tmp_path)

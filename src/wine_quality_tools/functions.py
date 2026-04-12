@@ -440,7 +440,7 @@ def save_figure(fig, output_path):
     
     Examples
     --------
-    >>> fig.savefig("heatmap.png")
+    >>> save_figure(fig, "results/heatmap.png")
     """
     if fig is None:
         raise ValueError("Figure object is None.")
