@@ -139,32 +139,19 @@ def _merge_datasets(red_df, white_df):
   
 
 def save_data(df, filepath):
-  """
-    Save a pandas DataFrame to a CSV file.
-
-    This function writes a DataFrame to the specified filepath. It performs
-    validation to ensure the input is a valid DataFrame and the filepath
-    is properly formatted.
+    """
+    Save DataFrame to CSV.
 
     Parameters
     ----------
     df : pandas.DataFrame
-        The dataset to be saved.
-    filepath : str or Path
-        Path where the CSV file will be written.
-
-    Returns
-    -------
-    None
-
+    filepath : str
+    
     Examples
     --------
-    >>> save_data(df, "output/cleaned_data.csv")
+    >>> save_data(df, "output/cleaned.csv")
     """
-    try:
-        df.to_csv(filepath, index=False)
-    except Exception as e:
-        raise ValueError(f"Error saving file: {e}")
+    df.to_csv(filepath, index=False)
 
 def clean_data(red_input, white_input, output_file):
 
@@ -212,7 +199,10 @@ def clean_data(red_input, white_input, output_file):
     combined = _merge_datasets(red, white)
 
     # ---- Save output ----
-    save_data(combined, output_file)
+    try:
+        combined.to_csv(output_file, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
 
     return combined
 
