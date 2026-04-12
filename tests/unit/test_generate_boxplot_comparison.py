@@ -7,6 +7,21 @@ from wine_quality_tools import generate_boxplot_comparison
 def sample_wine_data():
     return pd.DataFrame({'alcohol': [10, 11], 'sugar': [1, 2], 'quality': [5, 6]})
 
+def test_generate_boxplot_known_groups():
+    df = pd.DataFrame({
+        'quality': [5, 5, 6, 6],
+        'alcohol': [10, 12, 20, 22]
+    })
+
+    fig = generate_boxplot_comparison(df, 'quality', ['alcohol'])
+    ax = fig.axes[0]
+
+    labels = [tick.get_text() for tick in ax.get_xticklabels()]
+    assert '5' in labels
+    assert '6' in labels
+
+    plt.close(fig)
+
 def test_generate_boxplot_subplots(sample_wine_data):
     # Coverage: Ensure it creates exactly 2 subplots for 2 y_cols
     y_vars = ['alcohol', 'sugar']
