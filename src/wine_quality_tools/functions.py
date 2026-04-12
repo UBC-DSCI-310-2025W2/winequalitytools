@@ -168,28 +168,10 @@ def save_data(df, filepath):
     -------
     None
 
-    Raises
-    ------
-    TypeError
-        If df is not a pandas DataFrame.
-    ValueError
-        If filepath is not a valid non-empty string.
-    ValueError
-        If an error occurs while saving the file.
-
     Examples
     --------
     >>> save_data(df, "output/cleaned_data.csv")
     """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("df must be a pandas DataFrame.")
-
-    if isinstance(filepath, Path):
-        filepath = str(filepath)
-
-    if not isinstance(filepath, str) or filepath.strip() == "":
-        raise ValueError("filepath must be a non-empty string.")
-
     try:
         df.to_csv(filepath, index=False)
     except Exception as e:
