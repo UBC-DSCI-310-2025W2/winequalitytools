@@ -20,7 +20,27 @@ matplotlib.use('Agg')  # Use non-interactive backend for testing
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+def _fetch_csv(url, sep=";"):
+    """
+    Fetch a CSV file from a URL and return a DataFrame.
+    """
+    try:
+        return pd.read_csv(url, sep=sep)
+    except Exception as e:
+        raise ValueError(f"Error downloading data: {e}")
 
+def _validate_and_convert_to_string(value, name):
+    """
+    Validate that a value is a non-empty string or Path, and return it as a string.
+    """
+    if isinstance(value, Path):
+        value = str(value)
+
+    if not isinstance(value, str) or value.strip() == "":
+        raise ValueError(f"{name} must be a non-empty string.")
+
+    return value
+  
 def download_data(red_url, white_url, output_dir, sep=";"):
     """
     Download wine datasets from URLs and save them locally.
@@ -46,30 +66,15 @@ def download_data(red_url, white_url, output_dir, sep=";"):
     ValueError
         If inputs are invalid or download fails
     """
+    red_url = _validate_and_convert_to_string(red_url, "red_url")
+    white_url = _validate_and_convert_to_string(white_url, "white_url")
+    output_dir = _validate_and_convert_to_string(output_dir, "output_dir")
 
-    # ---- Convert Path to string ----
-    for name, value in [("red_url", red_url), ("white_url", white_url), ("output_dir", output_dir)]:
-        if isinstance(value, Path):
-            value = str(value)
-
-        if not isinstance(value, str) or value.strip() == "":
-            raise ValueError(f"{name} must be a non-empty string.")
-
-    red_url = str(red_url)
-    white_url = str(white_url)
-    output_dir = str(output_dir)
-
-    # ---- Create directory ----
     os.makedirs(output_dir, exist_ok=True)
 
-    # ---- Load data ----
-    try:
-        red_df = pd.read_csv(red_url, sep=sep)
-        white_df = pd.read_csv(white_url, sep=sep)
-    except Exception as e:
-        raise ValueError(f"Error downloading data: {e}")
+    red_df = _fetch_csv(red_url, sep)
+    white_df = _fetch_csv(white_url, sep)
 
-    # ---- Save files ----
     red_path = os.path.join(output_dir, "winequality-red.csv")
     white_path = os.path.join(output_dir, "winequality-white.csv")
 
@@ -77,6 +82,37 @@ def download_data(red_url, white_url, output_dir, sep=";"):
     white_df.to_csv(white_path, index=False)
 
     return red_df, white_df, red_path, white_path
+
+def _load_csv(filepath):
+    """
+    Load a CSV file and handle errors.
+    """
+    try:
+        return pd.read_csv(filepath)
+    except EmptyDataError:
+        return pd.DataFrame()
+    except Exception as e:
+        raise ValueError(f"Error reading file: {e}")
+      
+def _clean_column_names(df):
+    """
+    Standardize column names.
+    """
+    df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
+    return df
+  
+def _add_wine_type(df, wine_type):
+    """
+    Add wine_type column to dataframe.
+    """
+    df["wine_type"] = wine_type
+    return df
+  
+def _merge_datasets(red_df, white_df):
+    """
+    Merge red and white wine datasets.
+    """
+    return pd.concat([red_df, white_df], ignore_index=True)
 
 
 def clean_data(red_input, white_input, output_file):
@@ -118,30 +154,19 @@ def clean_data(red_input, white_input, output_file):
             raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
-    try:
-        red = pd.read_csv(red_input)
-    except EmptyDataError:
-        red = pd.DataFrame()
-    except Exception as e:
-        raise ValueError(f"Error reading red_input: {e}")
-
-    try:
-        white = pd.read_csv(white_input)
-    except EmptyDataError:
-        white = pd.DataFrame()
-    except Exception as e:
-        raise ValueError(f"Error reading white_input: {e}")
+    red = _load_csv(red_input)
+    white = _load_csv(white_input)
 
     # ---- Clean column names ----
-    red.columns = red.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
-    white.columns = white.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
+    red = _clean_column_names(red)
+    white = _clean_column_names(white)
 
     # ---- Add wine type ----
-    red["wine_type"] = "red"
-    white["wine_type"] = "white"
+    red = _add_wine_type(red, "red")
+    white = _add_wine_type(white, "white")
 
     # ---- Merge datasets ----
-    combined = pd.concat([red, white], ignore_index=True)
+    combined = _merge_datasets(red, white)
 
     # ---- Save output ----
     try:
@@ -150,21 +175,6 @@ def clean_data(red_input, white_input, output_file):
         raise ValueError(f"Error saving file: {e}")
 
     return combined
-
-
-def load_data(filepath):
-    """
-    Load dataset from a CSV file.
-
-    Parameters
-    ----------
-    filepath : str
-
-    Returns
-    -------
-    pandas.DataFrame
-    """
-    return pd.read_csv(filepath)
 
 
 def stratified_split(df, target_col, test_size=0.3, random_state=42):
@@ -194,6 +204,19 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
 
     return train, test
 
+def load_data(filepath):
+    """
+    Load dataset from a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    return pd.read_csv(filepath)
 
 def save_data(df, filepath):
     """
