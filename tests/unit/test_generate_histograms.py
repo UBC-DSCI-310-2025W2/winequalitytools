@@ -27,6 +27,19 @@ def test_generate_histograms_categorical_content(sample_wine_data):
     assert 'red' in tick_labels
     assert 'white' in tick_labels
     plt.close(fig)
+    
+def test_generate_histograms_categorical_counts():
+    df = pd.DataFrame({
+        'wine_type': ['red', 'red', 'white']
+    })
+
+    fig = generate_histograms(df, 'wine_type', is_categorical=True)
+    ax = fig.gca()
+
+    heights = sorted([patch.get_height() for patch in ax.patches])
+    assert heights == [1, 2]
+
+    plt.close(fig)
 
 def test_generate_histograms_single_string_input(sample_wine_data):
     # Edge Case: Passing a string instead of a list for 'columns'
