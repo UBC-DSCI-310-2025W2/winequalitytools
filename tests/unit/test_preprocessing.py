@@ -52,12 +52,23 @@ numeric_in_categorical_df = pd.DataFrame({
 ## Tests
 ##============
 
-def test_numeric_only():
-    """Tests numeric standardization with multiple numeric columns."""
-    preprocessor = build_preprocessor(numeric_df, [], ['age', 'income'])
-    X_trans = preprocessor.fit_transform(numeric_df)
-    assert X_trans.shape == (4, 2)
-    assert not np.isnan(X_trans).any()
+def test_numeric_only_expected_values():
+    """Tests numeric standardization against known expected values."""
+    df = pd.DataFrame({
+        'age': [10, 20, 30],
+        'income': [100, 200, 300]
+    })
+
+    preprocessor = build_preprocessor(df, [], ['age', 'income'])
+    X_trans = preprocessor.fit_transform(df)
+
+    expected = np.array([
+        [-1.22474487, -1.22474487],
+        [ 0.        ,  0.        ],
+        [ 1.22474487,  1.22474487]
+    ])
+
+    assert np.allclose(X_trans, expected)
 
 def test_categorical_only():
     """Tests categorical one-hot encoding with multiple categorical columns."""

@@ -11,6 +11,21 @@ def mixed_data():
         'text': ['a', 'b', 'c'] # Should be ignored
     })
 
+def test_generate_heatmap_expected_correlations():
+    df = pd.DataFrame({
+        'x': [1, 2, 3],
+        'y': [2, 4, 6]
+    })
+
+    fig = generate_correlation_heatmap(df)
+    ax = fig.gca()
+    annotation_texts = sorted([t.get_text() for t in ax.texts])
+
+    expected_texts = sorted(["1.00", "1.00", "1.00", "1.00"])
+    assert annotation_texts == expected_texts
+
+    plt.close(fig)
+
 def test_generate_heatmap_ignores_text(mixed_data):
     fig = generate_correlation_heatmap(mixed_data)
     ax = fig.gca()
