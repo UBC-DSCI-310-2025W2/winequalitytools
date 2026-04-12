@@ -412,7 +412,6 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     Examples
     --------
     >>> fig = generate_correlation_heatmap(df)
-    >>> fig.savefig("heatmap.png")
     """
     numeric_df = data.select_dtypes(include=['number'])
     if numeric_df.empty:
@@ -438,6 +437,10 @@ def save_figure(fig, output_path):
     ------
     ValueError
         If the figure object provided is None.
+    
+    Examples
+    --------
+    >>> fig.savefig("heatmap.png")
     """
     if fig is None:
         raise ValueError("Figure object is None.")
