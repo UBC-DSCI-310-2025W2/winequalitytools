@@ -174,9 +174,9 @@ def clean_data(red_input, white_input, output_file):
     """
 
     # ---- Convert Path to string ----
-    red_url = _validate_and_convert_to_string(red_url, "red_url")
-    white_url = _validate_and_convert_to_string(white_url, "white_url")
-    output_dir = _validate_and_convert_to_string(output_dir, "output_dir")
+    red_input = _validate_and_convert_to_string(red_input, "red_input")
+    white_input = _validate_and_convert_to_string(white_input, "white_input")
+    output_file = _validate_and_convert_to_string(output_file, "output_file")
 
     # ---- Load data ----
     red = _load_csv(red_input)
