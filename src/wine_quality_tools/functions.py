@@ -104,21 +104,12 @@ def load_data(filepath):
     Raises
     ------
     ValueError
-        If filepath is not a non-empty string.
-    FileNotFoundError
-        If the file does not exist at the given path.
-    ValueError
         If an error occurs while reading the file.
 
     Examples
     --------
     >>> df = load_data("data/wine.csv")
     """
-    if isinstance(filepath, Path):
-        filepath = str(filepath)
-
-    if not isinstance(filepath, str) or filepath.strip() == "":
-        raise ValueError("filepath must be a non-empty string.")
 
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
