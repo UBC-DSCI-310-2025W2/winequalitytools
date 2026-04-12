@@ -83,14 +83,48 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def _load_csv(filepath):
+def load_data(filepath):
+  """
+    Load a dataset from a CSV file.
+
+    This function reads a CSV file from the given filepath and returns it
+    as a pandas DataFrame. It performs input validation to ensure the
+    filepath is valid and exists before attempting to load the file.
+
+    Parameters
+    ----------
+    filepath : str or Path
+        Path to the CSV file to be loaded.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The loaded dataset.
+
+    Raises
+    ------
+    ValueError
+        If filepath is not a non-empty string.
+    FileNotFoundError
+        If the file does not exist at the given path.
+    ValueError
+        If an error occurs while reading the file.
+
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
     """
-    Load a CSV file and handle errors.
-    """
+    if isinstance(filepath, Path):
+        filepath = str(filepath)
+
+    if not isinstance(filepath, str) or filepath.strip() == "":
+        raise ValueError("filepath must be a non-empty string.")
+
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
+
     try:
         return pd.read_csv(filepath)
-    except EmptyDataError:
-        return pd.DataFrame()
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
       
@@ -114,38 +148,52 @@ def _merge_datasets(red_df, white_df):
     """
     return pd.concat([red_df, white_df], ignore_index=True)
   
-def load_data(filepath):
-    """
-    Load dataset from a CSV file.
-
-    Parameters
-    ----------
-    filepath : str
-
-    Returns
-    -------
-    pandas.DataFrame
-    
-    Examples
-    --------
-    >>> df = load_data("data/wine.csv")
-    """
-    return pd.read_csv(filepath)
 
 def save_data(df, filepath):
-    """
-    Save DataFrame to CSV.
+  """
+    Save a pandas DataFrame to a CSV file.
+
+    This function writes a DataFrame to the specified filepath. It performs
+    validation to ensure the input is a valid DataFrame and the filepath
+    is properly formatted.
 
     Parameters
     ----------
     df : pandas.DataFrame
-    filepath : str
-    
+        The dataset to be saved.
+    filepath : str or Path
+        Path where the CSV file will be written.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    TypeError
+        If df is not a pandas DataFrame.
+    ValueError
+        If filepath is not a valid non-empty string.
+    ValueError
+        If an error occurs while saving the file.
+
     Examples
     --------
-    >>> save_data(df, "output/cleaned.csv")
+    >>> save_data(df, "output/cleaned_data.csv")
     """
-    df.to_csv(filepath, index=False)
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a pandas DataFrame.")
+
+    if isinstance(filepath, Path):
+        filepath = str(filepath)
+
+    if not isinstance(filepath, str) or filepath.strip() == "":
+        raise ValueError("filepath must be a non-empty string.")
+
+    try:
+        df.to_csv(filepath, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
 
 
 def clean_data(red_input, white_input, output_file):
@@ -179,8 +227,8 @@ def clean_data(red_input, white_input, output_file):
     output_file = _validate_and_convert_to_string(output_file, "output_file")
 
     # ---- Load data ----
-    red = _load_csv(red_input)
-    white = _load_csv(white_input)
+    red = load_data(red_input)
+    white = load_data(white_input)
 
     # ---- Clean column names ----
     red = _clean_column_names(red)
@@ -194,10 +242,7 @@ def clean_data(red_input, white_input, output_file):
     combined = _merge_datasets(red, white)
 
     # ---- Save output ----
-    try:
-        combined.to_csv(output_file, index=False)
-    except Exception as e:
-        raise ValueError(f"Error saving file: {e}")
+    save_data(combined, output_file)
 
     return combined
 
