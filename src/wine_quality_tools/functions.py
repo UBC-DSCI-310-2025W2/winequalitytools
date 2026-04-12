@@ -143,6 +143,10 @@ def _merge_datasets(red_df, white_df):
 def _load_csv(filepath):
     """
     Load a CSV file and handle errors.
+    
+    Example
+    ---------
+    >>> _load_csv(data/)
     """
     try:
         return pd.read_csv(filepath)
@@ -205,9 +209,17 @@ def clean_data(red_input, white_input, output_file):
     """
 
     # ---- Convert Path to string ----
-    red_input = _validate_and_convert_to_string(red_input, "red_input")
-    white_input = _validate_and_convert_to_string(white_input, "white_input")
-    output_file = _validate_and_convert_to_string(output_file, "output_file")
+    if isinstance(red_input, Path):
+        red_input = str(red_input)
+    if isinstance(white_input, Path):
+        white_input = str(white_input)
+    if isinstance(output_file, Path):
+        output_file = str(output_file)
+
+    # ---- Validate inputs ----
+    for name, path in [("red_input", red_input), ("white_input", white_input), ("output_file", output_file)]:
+        if not isinstance(path, str) or path.strip() == "":
+            raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
     red = _load_csv(red_input)
