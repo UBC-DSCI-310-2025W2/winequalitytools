@@ -137,7 +137,7 @@ def _clean_column_names(df):
   
 def _add_wine_type(df, wine_type):
     """
-    Add wine_type column to dataframe.
+    Add wine_type column to dataframe
     """
     df["wine_type"] = wine_type
     return df
@@ -195,7 +195,6 @@ def save_data(df, filepath):
     except Exception as e:
         raise ValueError(f"Error saving file: {e}")
 
-
 def clean_data(red_input, white_input, output_file):
 
     """
@@ -220,7 +219,7 @@ def clean_data(red_input, white_input, output_file):
     ValueError
         If inputs are invalid or files cannot be read
     """
-
+    
     # ---- Convert Path to string ----
     red_input = _validate_and_convert_to_string(red_input, "red_input")
     white_input = _validate_and_convert_to_string(white_input, "white_input")
