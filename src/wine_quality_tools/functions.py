@@ -144,17 +144,6 @@ def clean_data(red_input, white_input, output_file):
     red_input = _validate_and_convert_to_string(red_input, "red_input")
     white_input = _validate_and_convert_to_string(white_input, "white_input")
     output_file = _validate_and_convert_to_string(output_file, "output_file")
-   #   if isinstance(red_input, Path):
-    #      red_input = str(red_input)
-    #  if isinstance(white_input, Path):
-    #      white_input = str(white_input)
-    #  if isinstance(output_file, Path):
-      #    output_file = str(output_file)
-
-    # ---- Validate inputs ----
-   #   for name, path in [("red_input", red_input), ("white_input", white_input), ("output_file", output_file)]:
-    #      if not isinstance(path, str) or path.strip() == "":
-    #          raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
     red = _load_csv(red_input)
@@ -248,13 +237,6 @@ def load_data(filepath):
     Returns
     -------
     pandas.DataFrame
-
-    Raises
-    ------
-    ValueError
-        If filepath is not a non-empty string or Path
-    FileNotFoundError
-        If the file does not exist
         
     Examples
     --------
@@ -270,13 +252,6 @@ def save_data(df, filepath):
     ----------
     df : pandas.DataFrame
     filepath : str or Path
-
-    Raises
-    ------
-    TypeError
-        If df is not a DataFrame
-    ValueError
-        If filepath is invalid
         
     Examples
     --------
@@ -418,7 +393,7 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     ValueError
         If the dataframe contains no numeric columns (float64 or int64).
     """
-    numeric_df = data.select_dtypes(include=['number'])
+    numeric_df = data.select_dtypes(include=['float64', 'int64'])
     if numeric_df.empty:
         raise ValueError("No numeric columns available to correlate.")
 
@@ -473,10 +448,7 @@ def generate_histograms(data, columns, is_categorical=False, title=None):
         raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
 
     num_cols = 1 if is_categorical else len(cols_to_plot)
-    fig, axes = plt.subplots(1, num_cols, figsize=(5 * num_cols, 5))
-    if num_cols == 1:
-      axes = [axes]
-      
+    fig, axes = plt.subplots(1, num_cols, figsize=(5 * num_cols, 5), squeeze=False)
     sns.set_theme(style="whitegrid")
 
     if is_categorical:
