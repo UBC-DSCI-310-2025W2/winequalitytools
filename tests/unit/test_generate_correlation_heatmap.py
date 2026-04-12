@@ -11,6 +11,8 @@ def mixed_data():
         'text': ['a', 'b', 'c'] # Should be ignored
     })
 
+
+
 def test_generate_heatmap_ignores_text(mixed_data):
     fig = generate_correlation_heatmap(mixed_data)
     ax = fig.gca()
