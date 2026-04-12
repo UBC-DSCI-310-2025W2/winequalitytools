@@ -118,6 +118,25 @@ def _load_csv(filepath):
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
       
+def save_data(df, filepath):
+    """
+    Save DataFrame to CSV.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    filepath : str
+    
+    Example:
+    ----------
+    >>> save_data(wine_quality_df, data/)
+    """
+    try:
+      df.to_csv(filepath, index=False)
+    except Exception as e:
+        raise ValueError(f"Error saving file: {e}")
+    
+      
 def _clean_column_names(df):
     """
     Standardize column names.
@@ -222,11 +241,8 @@ def clean_data(red_input, white_input, output_file):
     combined = _merge_datasets(red, white)
 
     # ---- Save output ----
-    try:
-        combined.to_csv(output_file, index=False)
-    except Exception as e:
-        raise ValueError(f"Error saving file: {e}")
-
+    save_data(combined, output_file)
+    
     return combined
 
 
@@ -280,17 +296,6 @@ def load_data(filepath):
     >>> df = load_data("data/wine.csv")
     """
     return pd.read_csv(filepath)
-
-def save_data(df, filepath):
-    """
-    Save DataFrame to CSV.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-    filepath : str
-    """
-    df.to_csv(filepath, index=False)
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
