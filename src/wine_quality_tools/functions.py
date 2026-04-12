@@ -103,13 +103,13 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 
     return red_df, white_df, red_path, white_path
 
-def _load_csv(filepath):
+def load_data(filepath):
     """
     Load a CSV file and handle errors.
     
     Examples
     --------
-    >>> df = _load_csv("data/wine.csv")
+    >>> df = load_data("data/wine.csv")
     """
     try:
         return pd.read_csv(filepath)
@@ -226,8 +226,8 @@ def clean_data(red_input, white_input, output_file):
             raise ValueError(f"{name} must be a non-empty string.")
 
     # ---- Load data ----
-    red = _load_csv(red_input)
-    white = _load_csv(white_input)
+    red = load_data(red_input)
+    white = load_data(white_input)
 
     # ---- Clean column names ----
     red = _clean_column_names(red)
@@ -278,24 +278,6 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
     )
 
     return train, test
-
-def load_data(filepath):
-    """
-    Load dataset from a CSV file.
-
-    Parameters
-    ----------
-    filepath : str
-
-    Returns
-    -------
-    pandas.DataFrame
-    
-    Examples
-    --------
-    >>> df = load_data("data/wine.csv")
-    """
-    return pd.read_csv(filepath)
 
 
 def build_preprocessor(df, categorical_cols, numeric_cols):
