@@ -23,6 +23,11 @@ import seaborn as sns
 def _fetch_csv(url, sep=";"):
     """
     Fetch a CSV file from a URL and return a DataFrame.
+    
+    Examples
+    --------
+    >>> df = _fetch_csv("https://example.com/data.csv")
+    >>> df.shape
     """
     try:
         return pd.read_csv(url, sep=sep)
@@ -32,6 +37,13 @@ def _fetch_csv(url, sep=";"):
 def _validate_and_convert_to_string(value, name):
     """
     Validate that a value is a non-empty string or Path, and return it as a string.
+    
+    Examples
+    --------
+    >>> _validate_and_convert_to_string("data/file.csv", "filepath")
+    'data/file.csv'
+    >>> _validate_and_convert_to_string(Path("data/file.csv"), "filepath")
+    'data/file.csv'
     """
     if isinstance(value, Path):
         value = str(value)
@@ -65,6 +77,14 @@ def download_data(red_url, white_url, output_dir, sep=";"):
     ------
     ValueError
         If inputs are invalid or download fails
+        
+    Examples
+    --------
+    >>> red, white, red_path, white_path = download_data(
+    "https://example.com/red.csv",
+    "https://example.com/white.csv",
+    "data/"
+    sep=";")
     """
     red_url = _validate_and_convert_to_string(red_url, "red_url")
     white_url = _validate_and_convert_to_string(white_url, "white_url")
@@ -86,6 +106,10 @@ def download_data(red_url, white_url, output_dir, sep=";"):
 def _load_csv(filepath):
     """
     Load a CSV file and handle errors.
+    
+    Examples
+    --------
+    >>> df = _load_csv("data/wine.csv")
     """
     try:
         return pd.read_csv(filepath)
@@ -97,6 +121,12 @@ def _load_csv(filepath):
 def _clean_column_names(df):
     """
     Standardize column names.
+    
+    Examples
+    --------
+    >>> df = pd.DataFrame({"Fixed Acidity": [7.4]})
+    >>> df = _clean_column_names(df)
+    >>> df.columns
     """
     df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_", regex=False)
     return df
@@ -104,6 +134,13 @@ def _clean_column_names(df):
 def _add_wine_type(df, wine_type):
     """
     Add wine_type column to dataframe.
+    
+    Examples
+    --------
+    >>> df = pd.DataFrame({"alcohol": [10.5]})
+    >>> df = _add_wine_type(df, "red")
+    >>> df["wine_type"].iloc[0]
+    'red'
     """
     df["wine_type"] = wine_type
     return df
@@ -111,6 +148,14 @@ def _add_wine_type(df, wine_type):
 def _merge_datasets(red_df, white_df):
     """
     Merge red and white wine datasets.
+    
+    Examples
+    --------
+    >>> df1 = pd.DataFrame({"a": [1]})
+    >>> df2 = pd.DataFrame({"a": [2]})
+    >>> merged = _merge_datasets(df1, df2)
+    >>> len(merged)
+    2
     """
     return pd.concat([red_df, white_df], ignore_index=True)
 
@@ -138,6 +183,14 @@ def clean_data(red_input, white_input, output_file):
     ------
     ValueError
         If inputs are invalid or files cannot be read
+        
+    Examples
+    --------
+    >>> df = clean_data(
+    "data/winequality-red.csv",
+    "data/winequality-white.csv",
+    "output/cleaned.csv")
+    >>> df.head()
     """
 
     # ---- Convert Path to string ----
@@ -191,6 +244,12 @@ def stratified_split(df, target_col, test_size=0.3, random_state=42):
     Returns
     -------
     (train_df, test_df)
+    
+    Examples
+    --------
+    >>> train, test = stratified_split(df, "quality", test_size=0.2)
+    >>> len(train) + len(test) == len(df)
+    True
     """
     if target_col not in df.columns:
         raise KeyError(f"{target_col} not found in dataframe")
@@ -215,6 +274,10 @@ def load_data(filepath):
     Returns
     -------
     pandas.DataFrame
+    
+    Examples
+    --------
+    >>> df = load_data("data/wine.csv")
     """
     return pd.read_csv(filepath)
 
@@ -323,6 +386,11 @@ def generate_boxplot_comparison(data, x, y_cols, title=None):
     ------
     KeyError
         If any of the specified columns are not present in the dataframe.
+        
+    Examples
+    --------
+    >>> fig = generate_boxplot_comparison(df, "quality", ["alcohol", "pH"])
+    >>> fig.savefig("boxplot.png")
     """
     for col in [x] + y_cols:
         if col not in data.columns:
@@ -362,6 +430,11 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     ------
     ValueError
         If the dataframe contains no numeric columns (float64 or int64).
+        
+    Examples
+    --------
+    >>> fig = generate_correlation_heatmap(df)
+    >>> fig.savefig("heatmap.png")
     """
     numeric_df = data.select_dtypes(include=['float64', 'int64'])
     if numeric_df.empty:
@@ -403,6 +476,11 @@ def generate_histograms(data, columns, is_categorical=False, title=None):
         contained within the DataFrame.
     TypeError
         If 'data' is not a pandas DataFrame.
+        
+    Examples
+    --------
+    >>> fig = generate_histograms(df, wine_quality, is_categorical=False, title=None)
+    >>> fig.savefig("histogram.png")
     """
    
     if not isinstance(data, pd.DataFrame):
@@ -456,6 +534,10 @@ def save_figure(fig, output_path):
     ------
     ValueError
         If the figure object provided is None.
+        
+    Examples
+    --------
+    >>> fig.savefig("scatterplot.png")
     """
     if fig is None:
         raise ValueError("Figure object is None.")
