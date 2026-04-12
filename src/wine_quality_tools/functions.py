@@ -110,12 +110,10 @@ def load_data(filepath):
     --------
     >>> df = load_data("data/wine.csv")
     """
-
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
-
-    try:
+   try:
         return pd.read_csv(filepath)
+    except EmptyDataError:
+        return pd.DataFrame()
     except Exception as e:
         raise ValueError(f"Error reading file: {e}")
       
