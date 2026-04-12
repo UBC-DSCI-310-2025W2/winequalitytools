@@ -363,7 +363,7 @@ def generate_correlation_heatmap(data, title="Correlation Matrix"):
     ValueError
         If the dataframe contains no numeric columns (float64 or int64).
     """
-    numeric_df = data.select_dtypes(include=['float64', 'int64'])
+    numeric_df = data.select_dtypes(include=['number'])
     if numeric_df.empty:
         raise ValueError("No numeric columns available to correlate.")
 
